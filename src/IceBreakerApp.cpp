@@ -16,7 +16,7 @@ public:
 	void draw();
 
 private:
-	WordCloud mWords;
+	WordCloud *mWords;
 };
 
 void IceBreakerApp::prepareSettings(Settings *pSettings)
@@ -27,25 +27,26 @@ void IceBreakerApp::prepareSettings(Settings *pSettings)
 
 void IceBreakerApp::setup()
 {
+	gl::TextureFontRef cFontRef = gl::TextureFont::create(Font("Times New Roman", 36));
+	mWords = new WordCloud(cFontRef);
 }
 
 void IceBreakerApp::mouseMove( MouseEvent event )
 {
-	console() << event.getX() << ", " << event.getY() << endl;
 	Vec2f cTarget = Vec2f(event.getX(), event.getY());
-	mWords.SetTarget(cTarget);
+	mWords->SetTarget(cTarget);
 }
 
 void IceBreakerApp::update()
 {
-	mWords.Step();
+	mWords->Step();
 }
 
 void IceBreakerApp::draw()
 {
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) ); 
-	mWords.Display();
+	mWords->Display();
 }
 
 CINDER_APP_NATIVE( IceBreakerApp, RendererGl )

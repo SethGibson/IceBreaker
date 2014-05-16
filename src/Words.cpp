@@ -5,7 +5,7 @@ string S_WORDS[] = {"the", "quick", "brown", "fox", "jumped", "over", "the", "la
 
 namespace Words
 {
-	Wordicle::Wordicle()
+	Wordicle::Wordicle(const gl::TextureFontRef &pFont):mFont(pFont)
 	{
 		int cid = randInt(9);		
 		mPosition = Vec2f::zero();
@@ -14,13 +14,13 @@ namespace Words
 		mSpeed = mWord.length();
 	}
 
-	Wordicle::Wordicle(string pWord, Vec2f pPosition)
+	Wordicle::Wordicle(string pWord, Vec2f pPosition, const gl::TextureFontRef &pFont):mFont(pFont)
 	{
 		mPosition = pPosition;
 		mVelocity = Vec2f::zero();
 		mWord = pWord;
 		mSpeed = pWord.length()+randFloat(0.25f,2.0f);
-		mColor = ColorA(randFloat(1), randFloat(1), randFloat(1), randFloat(0.1f,0.5f));
+		mColor = ColorA(randFloat(1), randFloat(1), randFloat(1), randFloat(0.4f,0.8f));
 	}
 
 	Wordicle::~Wordicle()
@@ -41,16 +41,21 @@ namespace Words
 
 	void Wordicle::Display()
 	{
+		//gl::color(mColor);
+		//gl::drawSolidCircle(mPosition, mSpeed*5);
+		//gl::color(Color::white());
+		//gl::drawStrokedCircle(mPosition, mSpeed*5);
 		gl::color(mColor);
-		gl::drawSolidCircle(mPosition, mSpeed*5);
-		gl::color(Color::white());
-		gl::drawStrokedCircle(mPosition, mSpeed*5);
+		mFont->drawString(mWord, mPosition);
+		
 	}
 
-	WordCloud::WordCloud()
+	WordCloud::WordCloud(gl::TextureFontRef pFont)
 	{
+		mFont = pFont;
+
 		for(int i=0;i<13;++i)
-			mWords.push_back(Wordicle(S_WORDS[i], Vec2f::zero()));
+			mWords.push_back(Wordicle(S_WORDS[i], Vec2f::zero(), mFont));
 		mTarget = Vec2f(320,240);
 	}
 
@@ -82,7 +87,7 @@ namespace Words
 
 	void WordCloud::Display()
 	{
-		gl::enableAlphaBlending();
+		gl::enableAdditiveBlending();
 		for(auto wit=mWords.begin();wit!=mWords.end();++wit)
 			wit->Display();
 		gl::disableAlphaBlending();
