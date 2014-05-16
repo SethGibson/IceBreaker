@@ -16,7 +16,7 @@ namespace Words
 	public:
 		//Wordicle();
 		Wordicle(const gl::TextureFontRef &pFont);
-		Wordicle(string pWord, Vec2f pPosition, const gl::TextureFontRef &pFont);
+		Wordicle(string pWord, Vec2f pPosition, Vec2f pOffset, const gl::TextureFontRef &pFont);
 		~Wordicle();
 
 		void SetWord(string pWord);
@@ -29,6 +29,8 @@ namespace Words
 
 		Vec2f mPosition;
 		Vec2f mVelocity;
+		Vec2f mStringSize;
+		Vec2f mOffset;
 		ColorA mColor;
 
 		const gl::TextureFontRef &mFont;
