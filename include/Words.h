@@ -52,6 +52,7 @@ namespace Words
 	private:
 		vector<Wordicle> mWords;
 		Vec2f mTarget;
+		Vec2f mHitBox;
 		gl::TextureFontRef mFont;
 	};
 }

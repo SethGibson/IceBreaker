@@ -22,6 +22,8 @@ private:
 	WordCloud *mWords;
 	UtilPipeline mPXC;
 	gl::Texture mRgb;
+	Vec2f mMouse;
+	Vec2f mHitBox;
 };
 
 void IceBreakerApp::prepareSettings(Settings *pSettings)
@@ -32,6 +34,7 @@ void IceBreakerApp::prepareSettings(Settings *pSettings)
 
 void IceBreakerApp::setup()
 {
+	mHitBox = Vec2f(50,50);
 	gl::TextureFontRef cFontRef = gl::TextureFont::create(Font("Times New Roman", 36));
 	mWords = new WordCloud(cFontRef);
 	mPXC.EnableImage(PXCImage::COLOR_FORMAT_RGB24);
@@ -41,8 +44,8 @@ void IceBreakerApp::setup()
 
 void IceBreakerApp::mouseMove( MouseEvent event )
 {
-	Vec2f cTarget = Vec2f(event.getX(), event.getY());
-	mWords->SetTarget(cTarget);
+	mMouse.set(event.getPos());
+	mWords->SetTarget(mMouse);
 }
 
 void IceBreakerApp::update()
@@ -68,6 +71,9 @@ void IceBreakerApp::draw()
 	gl::color(Color::white());
 	gl::draw(mRgb, Vec2f::zero());
 	mWords->Display();
+
+	gl::color(Color(0,1,0));
+	gl::drawStrokedRect(Rectf(mMouse-mHitBox,mMouse+mHitBox));
 }
 
 void IceBreakerApp::quit()

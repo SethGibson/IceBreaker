@@ -40,10 +40,6 @@ namespace Words
 
 	void Wordicle::Display()
 	{
-		//gl::color(mColor);
-		//gl::drawSolidCircle(mPosition, mSpeed*5);
-		//gl::color(Color::white());
-		//gl::drawStrokedCircle(mPosition, mSpeed*5);
 		gl::color(mColor);
 		gl::drawSolidRect(Rectf(mPosition.x+mOffset.x-5,
 									mPosition.y-mStringSize.y-5,
@@ -66,12 +62,13 @@ namespace Words
 		for(int i=0;i<S_COUNT;++i)
 		{
 
-			float cx = lmap<float>(i,0,S_COUNT,-1,1);
+			float cx = i<=S_COUNT*0.5f? -1:1;
 			float cy = i<=S_COUNT*0.5f? lmap<float>(i,0,S_COUNT*0.5f,0,-1):lmap<float>(i,S_COUNT*0.5f,S_COUNT,-1,0);
 			Vec2f cOffset(cx,cy);
 			mWords.push_back(Wordicle(S_WORDS[i], Vec2f::zero(), cOffset, mFont));
 		}
 		mTarget = Vec2f(320,240);
+		mHitBox = Vec2f(50,50);
 	}
 
 	WordCloud::WordCloud(vector<Wordicle> pWords)
