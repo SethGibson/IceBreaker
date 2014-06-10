@@ -20,7 +20,7 @@ namespace Words
 		~Wordicle();
 
 		void SetWord(string pWord);
-		void Step(Vec2f &pTarget);
+		void Step(Vec2f &pFaceCenter, Vec2f &pFaceSize);
 		void Display();
 
 	private:
@@ -48,11 +48,12 @@ namespace Words
 		void AddWord();
 		void Step();
 		void Display();
-		void SetTarget(Vec2f &pTarget);
+		void SetFaceCenter(Vec2f &pFaceCenter);
+		void SetFaceSize(Vec2f &pFaceSize);
 	private:
 		vector<Wordicle> mWords;
-		Vec2f mTarget;
-		Vec2f mHitBox;
+		Vec2f mFaceCenter;
+		Vec2f mFaceSize;
 		gl::TextureFontRef mFont;
 	};
 }

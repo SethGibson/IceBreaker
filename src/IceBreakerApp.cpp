@@ -22,8 +22,6 @@ private:
 	WordCloud *mWords;
 	UtilPipeline mPXC;
 	gl::Texture mRgb;
-	Vec2f mMouse;
-	Vec2f mHitBox;
 };
 
 void IceBreakerApp::prepareSettings(Settings *pSettings)
@@ -34,7 +32,6 @@ void IceBreakerApp::prepareSettings(Settings *pSettings)
 
 void IceBreakerApp::setup()
 {
-	mHitBox = Vec2f(50,50);
 	gl::TextureFontRef cFontRef = gl::TextureFont::create(Font("Times New Roman", 36));
 	mWords = new WordCloud(cFontRef);
 	mPXC.EnableImage(PXCImage::COLOR_FORMAT_RGB24);
@@ -44,14 +41,32 @@ void IceBreakerApp::setup()
 
 void IceBreakerApp::mouseMove( MouseEvent event )
 {
-	mMouse.set(event.getPos());
-	mWords->SetTarget(mMouse);
 }
 
 void IceBreakerApp::update()
 {
+	Vec2f cFacePos, cFaceSize;
 	if(mPXC.AcquireFrame(true))
 	{
+		PXCFaceAnalysis *cFace = mPXC.QueryFace();
+		PXCFaceAnalysis::Detection *cFaceDetection = cFace->DynamicCast<PXCFaceAnalysis::Detection>();
+		for(int fi=0;;++fi)
+		{
+			pxcUID cFId;
+			pxcU64 cTs;
+			if(cFace->QueryFace(fi,&cFId,&cTs)<PXC_STATUS_NO_ERROR)
+				break;
+
+			PXCFaceAnalysis::Detection::Data cData;
+			cFaceDetection->QueryData(cFId, &cData);
+			PXCRectU32 cFaceRect = cData.rectangle;
+			float cSizeX = cFaceRect.w*0.5f;
+			float cSizeY = cFaceRect.h*0.5f;
+			cFacePos.x = cFaceRect.x+cSizeX;
+			cFacePos.y = cFaceRect.y+cSizeY;
+			cFaceSize.set(cSizeX,cSizeX);
+
+		}
 		PXCImage *cImg = mPXC.QueryImage(PXCImage::IMAGE_TYPE_COLOR);
 		PXCImage::ImageData cData;
 		if(cImg->AcquireAccess(PXCImage::ACCESS_READ, &cData)>=PXC_STATUS_NO_ERROR)
@@ -59,8 +74,11 @@ void IceBreakerApp::update()
 			mRgb = gl::Texture(cData.planes[0], GL_BGR,640,480);
 			cImg->ReleaseAccess(&cData);
 		}
+
 		mPXC.ReleaseFrame();
 	}
+	mWords->SetFaceCenter(cFacePos);
+	mWords->SetFaceSize(cFaceSize);
 	mWords->Step();
 }
 
@@ -71,9 +89,6 @@ void IceBreakerApp::draw()
 	gl::color(Color::white());
 	gl::draw(mRgb, Vec2f::zero());
 	mWords->Display();
-
-	gl::color(Color(0,1,0));
-	gl::drawStrokedRect(Rectf(mMouse-mHitBox,mMouse+mHitBox));
 }
 
 void IceBreakerApp::quit()

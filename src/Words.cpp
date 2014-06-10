@@ -22,37 +22,31 @@ namespace Words
 		mVelocity = Vec2f::zero();
 		mWord = pWord;
 		mSpeed = mWord.length()*randFloat(1.5,4);
-		mColor = ColorA(randFloat(1), randFloat(1), randFloat(1), randFloat(0.4f,0.8f));
+		mColor = ColorA(randFloat(0.25f, 0.8f), randFloat(0.25f, 0.8f), randFloat(0.25f, 0.8f), randFloat(0.75f,1.f));
 		mStringSize = mFont->measureString(mWord);
-		mOffset = pOffset*Vec2f(mStringSize.x, mStringSize.x);
+		mOffset = pOffset;
 	}
 
 	Wordicle::~Wordicle()
 	{
 	}
 
-	void Wordicle::Step(Vec2f &pTarget)
+	void Wordicle::Step(Vec2f &pFaceCenter, Vec2f &pFaceSize)
 	{
-		mVelocity=(pTarget+mOffset)-mPosition;
-		mVelocity.limit(mSpeed*0.25f);
+		//pTarget is actual location(mouse or face rect center)
+		float cx = mOffset.x*pFaceSize.x;
+		if(mOffset.x<0)
+			cx -= mStringSize.x;
+		float cy = (mOffset.y*(mStringSize.y*3))+pFaceSize.y;
+		mVelocity=(pFaceCenter+Vec2f(cx,cy))-mPosition;
+		mVelocity.limit(mSpeed*0.325f);
 		mPosition+=mVelocity;
 	}
 
 	void Wordicle::Display()
 	{
 		gl::color(mColor);
-		gl::drawSolidRect(Rectf(mPosition.x+mOffset.x-5,
-									mPosition.y-mStringSize.y-5,
-									mPosition.x+mStringSize.x+mOffset.x+5, 
-									mPosition.y+5));
-
-		gl::color(Color::white());
-		gl::drawStrokedRect(Rectf(mPosition.x+mOffset.x-5,
-									mPosition.y-mStringSize.y-5,
-									mPosition.x+mStringSize.x+mOffset.x+5, 
-									mPosition.y+5));
-		mFont->drawString(mWord, Vec2f(mPosition.x+mOffset.x,mPosition.y));
-		
+		mFont->drawString(mWord, mPosition);
 	}
 
 	WordCloud::WordCloud(gl::TextureFontRef pFont)
@@ -67,8 +61,8 @@ namespace Words
 			Vec2f cOffset(cx,cy);
 			mWords.push_back(Wordicle(S_WORDS[i], Vec2f::zero(), cOffset, mFont));
 		}
-		mTarget = Vec2f(320,240);
-		mHitBox = Vec2f(50,50);
+		mFaceCenter = Vec2f::zero();
+		mFaceSize = Vec2f::zero();
 	}
 
 	WordCloud::WordCloud(vector<Wordicle> pWords)
@@ -94,19 +88,28 @@ namespace Words
 	void WordCloud::Step()
 	{
 		for(auto wit=mWords.begin();wit!=mWords.end();++wit)
-			wit->Step(mTarget);
+			wit->Step(mFaceCenter, mFaceSize);
 	}
 
 	void WordCloud::Display()
 	{
-		gl::enableAlphaBlending();
+		gl::enableAdditiveBlending();
 		for(auto wit=mWords.begin();wit!=mWords.end();++wit)
 			wit->Display();
 		gl::disableAlphaBlending();
+
+		/*
+		gl::color(Color(0,1,0));
+		gl::drawStrokedRect(Rectf(mFaceCenter-mFaceSize, mFaceCenter+mFaceSize));*/
 	}
 
-	void WordCloud::SetTarget(Vec2f &pTarget)
+	void WordCloud::SetFaceCenter(Vec2f &pFaceCenter)
 	{
-		mTarget.set(pTarget);
+		mFaceCenter.set(pFaceCenter);
+	}
+
+	void WordCloud::SetFaceSize(Vec2f &pFaceSize)
+	{
+		mFaceSize.set(pFaceSize);
 	}
 }
